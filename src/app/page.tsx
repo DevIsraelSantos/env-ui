@@ -1,7 +1,7 @@
-// src/app/page.tsx
+import { Button } from "@/components/ui/button";
+import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import dotenv from "dotenv";
 
 async function ReadFiles(dir: string): Promise<string[]> {
   return new Promise((resolve, reject) => {
@@ -52,6 +52,8 @@ export default async function HomePage() {
 
   return (
     <main>
+      <Button>Default</Button>
+      <Button variant={"destructive"}>Destructive</Button>
       <h1>Env UI</h1>
       <h2>Path:</h2>
       <pre>{currentPath}</pre>
