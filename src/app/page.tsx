@@ -1,5 +1,5 @@
 export default function HomePage() {
-  const currentPath = "C:...."; //
+  const currentPath = process.env.NEXT_PUBLIC_CALLER_PATH;
 
   return (
     <main>

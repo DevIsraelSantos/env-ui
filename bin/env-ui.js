@@ -5,20 +5,30 @@ const path = require("path");
 const open = require("open");
 
 const nextDir = path.join(__dirname, "..");
-const PORT = 3000;
 
-const nextDev = spawn("npx", ["next", "dev", "-p", PORT], {
+const cwd = process.cwd();
+
+const nextDev = spawn("npx", ["next", "dev"], {
   cwd: nextDir,
   stdio: ["inherit", "pipe", "pipe"],
   shell: true,
+  env: {
+    NEXT_PUBLIC_CALLER_PATH: cwd,
+  },
 });
 
 let opened = false;
+let host = null;
 
 function tryOpen(msg) {
-  if (!opened && msg.includes("✓ Ready")) {
+  const localUrlMatch = msg.match(/Local:\s+([^\s]+)/);
+  if (localUrlMatch) {
+    host = localUrlMatch[1];
+  }
+
+  if (!opened && msg.includes("✓ Ready") && host) {
     opened = true;
-    open(`http://localhost:${PORT}`);
+    open(host);
   }
 }
 
