@@ -54,8 +54,16 @@ export function EnvFileList({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { showNotification } = useNotificationContext();
 
+  const hasTemplateFile = files.some(
+    (file) => file.isTemplate && file.name === ".env.template"
+  );
+
   const handleCreateFile = async () => {
-    if (!newFileName) {
+    const newFileNameTrimmed = hasTemplateFile
+      ? newFileName.trim()
+      : "template";
+
+    if (!newFileNameTrimmed) {
       showNotification({
         title: "Nome inválido",
         description: "Por favor, forneça um nome para o arquivo .env",
@@ -66,13 +74,13 @@ export function EnvFileList({
 
     setIsCreating(true);
     try {
-      await createEnvFile(newFileName);
+      await createEnvFile(newFileNameTrimmed);
       await onFilesChanged();
       setNewFileName("");
       setIsDialogOpen(false);
       showNotification({
         title: "Arquivo criado",
-        description: `Arquivo .env.${newFileName} criado com sucesso!`,
+        description: `Arquivo .env.${newFileNameTrimmed} criado com sucesso!`,
       });
     } catch (error) {
       showNotification({
@@ -134,6 +142,21 @@ export function EnvFileList({
     }
   };
 
+  function ButtonCreateFile() {
+    return (
+      <Button onClick={handleCreateFile} disabled={isCreating}>
+        {isCreating ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Criando...
+          </>
+        ) : (
+          `Criar ${hasTemplateFile ? "arquivo" : "template"}`
+        )}
+      </Button>
+    );
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -155,28 +178,25 @@ export function EnvFileList({
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Criar novo arquivo .env</DialogTitle>
+                <DialogTitle>
+                  {hasTemplateFile
+                    ? "Criar novo arquivo .env"
+                    : "Criar template .env"}
+                </DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">.env.</span>
-                  <Input
-                    placeholder="dev, prod, staging..."
-                    value={newFileName}
-                    onChange={(e) => setNewFileName(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-                <Button onClick={handleCreateFile} disabled={isCreating}>
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Criando...
-                    </>
-                  ) : (
-                    "Criar arquivo"
-                  )}
-                </Button>
+                {hasTemplateFile && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">.env.</span>
+                    <Input
+                      placeholder="dev, prod, staging..."
+                      value={newFileName}
+                      onChange={(e) => setNewFileName(e.target.value)}
+                      className="col-span-3"
+                    />
+                  </div>
+                )}
+                <ButtonCreateFile />
               </div>
             </DialogContent>
           </Dialog>
