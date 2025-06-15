@@ -49,8 +49,8 @@ export async function getEnvFileContent(fileName: string): Promise<string> {
     const filePath = join(environmentWorkspace, fileName);
     if (!existsSync(filePath)) {
       if (fileName === ".env.template") {
-        writeFileSync(filePath, "# Template de variáveis de ambiente\n");
-      } else {
+        //   writeFileSync(filePath, "# Template de variáveis de ambiente\n");
+        // } else {
         throw new Error(`Arquivo ${fileName} não encontrado`);
       }
     }
