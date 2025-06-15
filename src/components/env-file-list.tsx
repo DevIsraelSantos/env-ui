@@ -193,6 +193,12 @@ export function EnvFileList({
                       value={newFileName}
                       onChange={(e) => setNewFileName(e.target.value)}
                       className="col-span-3"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleCreateFile();
+                        }
+                      }}
                     />
                   </div>
                 )}
