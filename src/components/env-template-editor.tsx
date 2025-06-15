@@ -28,11 +28,6 @@ export function EnvTemplateEditor({
         setTemplateContent(content);
       } catch (error) {
         console.error("Erro ao carregar template:", error);
-        showNotification({
-          title: "Erro ao carregar template",
-          description: "Não foi possível carregar o arquivo .env.template",
-          variant: "destructive",
-        });
       } finally {
         setIsLoading(false);
       }

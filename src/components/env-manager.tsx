@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { getEnvFileContent, listEnvFiles } from "@/lib/env-actions";
 import type { EnvFile } from "@/lib/types";
 import { useEffect, useState } from "react";
@@ -52,6 +52,8 @@ export function EnvManager() {
     setFiles(envFiles);
   };
 
+  const hasTemplateFile = files.some((file) => file.isTemplate);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div className="md:col-span-1">
@@ -63,13 +65,13 @@ export function EnvManager() {
           isLoading={isLoading}
         />
       </div>
-      {false && (
+      {hasTemplateFile && (
         <div className="md:col-span-3">
-          <Tabs defaultValue="template" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-4">
-              <TabsTrigger value="template">Template</TabsTrigger>
-              <TabsTrigger value="editor">Editor</TabsTrigger>
-            </TabsList>
+          <Tabs
+            defaultValue="template"
+            className="w-full"
+            value={selectedFile?.isTemplate ? "template" : "editor"}
+          >
             <TabsContent value="editor" className="mt-0">
               {selectedFile && (
                 <EnvEditor

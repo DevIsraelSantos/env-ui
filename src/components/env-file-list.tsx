@@ -29,7 +29,8 @@ import {
 } from "@/lib/env-actions";
 import type { EnvFile } from "@/lib/types";
 import { Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Separator } from "./ui/separator";
 
 interface EnvFileListProps {
   files: EnvFile[];
@@ -219,70 +220,74 @@ export function EnvFileList({
           </div>
         ) : (
           <div className="space-y-2">
-            {files.map((file) => (
-              <div
-                key={file.name}
-                className={`flex items-center justify-between p-2 rounded-md ${
-                  selectedFile?.name === file.name
-                    ? "bg-muted"
-                    : "hover:bg-muted/50"
-                } ${file.isActive ? "border-l-4 border-primary" : ""}`}
-              >
-                <button
-                  className="flex-1 text-left truncate"
-                  onClick={() => onSelectFile(file)}
+            {files.map((file, index) => (
+              <React.Fragment key={file.name}>
+                {index === 2 && <Separator className="mt-4" />}
+                <div
+                  className={`flex items-center justify-between p-2 rounded-md ${
+                    selectedFile?.name === file.name
+                      ? "bg-muted"
+                      : "hover:bg-muted/50"
+                  } ${
+                    file.isActive ? "border-1 border-l-4 border-primary" : ""
+                  }`}
                 >
-                  <span className="font-medium">{file.name}</span>
-                  {file.isActive && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      (ativo)
-                    </span>
-                  )}
-                </button>
-                <div className="flex gap-1">
-                  {!file.isActive && !file.isTemplate && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleActivateFile(file)}
-                      disabled={isActivating}
-                    >
-                      {isActivating ? "..." : "Ativar"}
-                    </Button>
-                  )}
-                  {!file.isTemplate && file.name !== ".env" && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setFileToDelete(file)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir arquivo</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza que deseja excluir o arquivo {file.name}
-                            ? Esta ação não pode ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={handleDeleteFile}
-                            disabled={isDeleting}
+                  <button
+                    className="flex-1 text-left truncate"
+                    onClick={() => onSelectFile(file)}
+                  >
+                    <span className="font-medium">{file.name}</span>
+                    {file.isActive && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        (ativo)
+                      </span>
+                    )}
+                  </button>
+                  <div className="flex gap-1">
+                    {!file.isActive && !file.isTemplate && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleActivateFile(file)}
+                        disabled={isActivating}
+                      >
+                        {isActivating ? "..." : "Ativar"}
+                      </Button>
+                    )}
+                    {!file.isTemplate && file.name !== ".env" && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setFileToDelete(file)}
                           >
-                            {isDeleting ? "Excluindo..." : "Excluir"}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir arquivo</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir o arquivo{" "}
+                              {file.name}? Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={handleDeleteFile}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? "Excluindo..." : "Excluir"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </React.Fragment>
             ))}
           </div>
         )}
