@@ -11,28 +11,29 @@ import { join } from "path";
 import { parseTemplateContent } from "./template-parser";
 import type { EnvFile, ValidationResult } from "./types";
 
+const environmentWorkspace = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
+
 export async function listEnvFiles(): Promise<EnvFile[]> {
   try {
-    const dir = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
-    const files = readdirSync(dir);
+    const files = readdirSync(environmentWorkspace);
     const envFiles = files
       .filter((file) => file.startsWith(".env"))
       .map((file) => {
-        const stats = statSync(join(dir, file));
+        const stats = statSync(join(environmentWorkspace, file));
         return {
           name: file,
           isActive: file === ".env",
-          isTemplate: file === ".env.example",
+          isTemplate: file === ".env.template",
           size: stats.size,
           lastModified: stats.mtimeMs,
         };
       })
       .sort((a, b) => {
-        // Ordenar com .env primeiro, depois .env.example, depois os outros
+        // Ordenar com .env primeiro, depois .env.template, depois os outros
+        if (a.name === ".env.template") return -1;
+        if (b.name === ".env.template") return 1;
         if (a.name === ".env") return -1;
         if (b.name === ".env") return 1;
-        if (a.name === ".env.example") return -1;
-        if (b.name === ".env.example") return 1;
         return a.name.localeCompare(b.name);
       });
 
@@ -45,11 +46,9 @@ export async function listEnvFiles(): Promise<EnvFile[]> {
 
 export async function getEnvFileContent(fileName: string): Promise<string> {
   try {
-    const dir = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
-    const filePath = join(dir, fileName);
+    const filePath = join(environmentWorkspace, fileName);
     if (!existsSync(filePath)) {
-      // Se for o arquivo de template e não existir, criar um vazio
-      if (fileName === ".env.example") {
+      if (fileName === ".env.template") {
         writeFileSync(filePath, "# Template de variáveis de ambiente\n");
       } else {
         throw new Error(`Arquivo ${fileName} não encontrado`);
@@ -68,8 +67,7 @@ export async function saveEnvFile(
   content: string
 ): Promise<void> {
   try {
-    const dir = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
-    const filePath = join(dir, fileName);
+    const filePath = join(environmentWorkspace, fileName);
     writeFileSync(filePath, content);
   } catch (error) {
     console.error(`Erro ao salvar arquivo ${fileName}:`, error);
@@ -79,9 +77,8 @@ export async function saveEnvFile(
 
 export async function activateEnvFile(fileName: string): Promise<void> {
   try {
-    const dir = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
-    const sourcePath = join(dir, fileName);
-    const targetPath = join(dir, ".env");
+    const sourcePath = join(environmentWorkspace, fileName);
+    const targetPath = join(environmentWorkspace, ".env");
 
     if (!existsSync(sourcePath)) {
       throw new Error(`Arquivo ${fileName} não encontrado`);
@@ -97,17 +94,16 @@ export async function activateEnvFile(fileName: string): Promise<void> {
 
 export async function createEnvFile(name: string): Promise<void> {
   try {
-    const dir = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
     const fileName = `.env.${name}`;
-    const filePath = join(dir, fileName);
+    const filePath = join(environmentWorkspace, fileName);
 
     if (existsSync(filePath)) {
       throw new Error(`Arquivo ${fileName} já existe`);
     }
 
-    // Verificar se existe um arquivo .env.example para usar como base
+    // Verificar se existe um arquivo .env.template para usar como base
     let content = "";
-    const examplePath = join(dir, ".env.example");
+    const examplePath = join(environmentWorkspace, ".env.template");
 
     if (existsSync(examplePath)) {
       content = readFileSync(examplePath, "utf-8");
@@ -123,7 +119,7 @@ export async function createEnvFile(name: string): Promise<void> {
 export async function deleteEnvFile(fileName: string): Promise<void> {
   try {
     // Não permitir excluir o .env principal ou o template
-    if (fileName === ".env" || fileName === ".env.example") {
+    if (fileName === ".env" || fileName === ".env.template") {
       throw new Error(`Não é permitido excluir o arquivo ${fileName}`);
     }
     const dir = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
@@ -134,7 +130,7 @@ export async function deleteEnvFile(fileName: string): Promise<void> {
     }
 
     // Excluir o arquivo
-    const fs = require("fs");
+    const fs = await import("fs");
     fs.unlinkSync(filePath);
   } catch (error) {
     console.error(`Erro ao excluir arquivo ${fileName}:`, error);
@@ -153,7 +149,7 @@ export async function validateEnvFile(
 
     // Carregar o template para validação
     const dir = join(process.env.NEXT_PUBLIC_CALLER_PATH ?? "");
-    const templatePath = join(dir, ".env.example");
+    const templatePath = join(dir, ".env.template");
     if (!existsSync(templatePath)) {
       return result; // Se não há template, consideramos válido
     }

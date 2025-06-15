@@ -24,13 +24,13 @@ export function EnvTemplateEditor({
   useEffect(() => {
     async function loadTemplate() {
       try {
-        const content = await getEnvFileContent(".env.example");
+        const content = await getEnvFileContent(".env.template");
         setTemplateContent(content);
       } catch (error) {
         console.error("Erro ao carregar template:", error);
         showNotification({
           title: "Erro ao carregar template",
-          description: "Não foi possível carregar o arquivo .env.example",
+          description: "Não foi possível carregar o arquivo .env.template",
           variant: "destructive",
         });
       } finally {
@@ -44,12 +44,12 @@ export function EnvTemplateEditor({
   const handleSave = async (content: string) => {
     setIsSaving(true);
     try {
-      await saveEnvFile(".env.example", content);
+      await saveEnvFile(".env.template", content);
       await onTemplateUpdated();
       setTemplateContent(content);
       showNotification({
         title: "Template salvo",
-        description: "Arquivo .env.example salvo com sucesso!",
+        description: "Arquivo .env.template salvo com sucesso!",
       });
     } catch (error) {
       showNotification({
@@ -78,7 +78,7 @@ export function EnvTemplateEditor({
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-medium">
-          Gerenciar Template (.env.example)
+          Gerenciar Template (.env.template)
         </CardTitle>
       </CardHeader>
       <CardContent>
