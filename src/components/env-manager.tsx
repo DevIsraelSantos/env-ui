@@ -18,6 +18,7 @@ export function EnvManager() {
     async function loadFiles() {
       try {
         const envFiles = await listEnvFiles();
+
         setFiles(envFiles);
         if (envFiles.length > 0) {
           const activeFile =
@@ -62,27 +63,29 @@ export function EnvManager() {
           isLoading={isLoading}
         />
       </div>
-      <div className="md:col-span-3">
-        <Tabs defaultValue="template" className="w-full">
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="template">Template</TabsTrigger>
-            <TabsTrigger value="editor">Editor</TabsTrigger>
-          </TabsList>
-          <TabsContent value="editor" className="mt-0">
-            {selectedFile && (
-              <EnvEditor
-                file={selectedFile}
-                content={fileContent}
-                onContentChange={setFileContent}
-                onSaved={refreshFiles}
-              />
-            )}
-          </TabsContent>
-          <TabsContent value="template" className="mt-0">
-            <EnvTemplateEditor onTemplateUpdated={refreshFiles} />
-          </TabsContent>
-        </Tabs>
-      </div>
+      {false && (
+        <div className="md:col-span-3">
+          <Tabs defaultValue="template" className="w-full">
+            <TabsList className="grid grid-cols-2 mb-4">
+              <TabsTrigger value="template">Template</TabsTrigger>
+              <TabsTrigger value="editor">Editor</TabsTrigger>
+            </TabsList>
+            <TabsContent value="editor" className="mt-0">
+              {selectedFile && (
+                <EnvEditor
+                  file={selectedFile}
+                  content={fileContent}
+                  onContentChange={setFileContent}
+                  onSaved={refreshFiles}
+                />
+              )}
+            </TabsContent>
+            <TabsContent value="template" className="mt-0">
+              <EnvTemplateEditor onTemplateUpdated={refreshFiles} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
     </div>
   );
 }
